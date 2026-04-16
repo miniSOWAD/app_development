@@ -11,104 +11,168 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: SecondaryNumbersScreen(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class SecondaryNumbersScreen extends StatefulWidget {
+  const SecondaryNumbersScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE5E0E3),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              height: 70,
-              color: const Color.fromARGB(255, 101, 207, 243),
-              child: Row(
-                children: [
-                  const Icon(Icons.arrow_back, color: Colors.black),
-                  const SizedBox(width: 20),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        "5th April, 2026",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                ],
-              ),
-            ),
+  State<SecondaryNumbersScreen> createState() =>
+      _SecondaryNumbersScreenState();
+}
 
-            Row(
+class _SecondaryNumbersScreenState extends State<SecondaryNumbersScreen> {
+  List<Map<String, String>> numbers = [
+    {"num": "+1 (555) 987-6543", "sub": "Home • Added 2mo ago"},
+    {"num": "+44 20 7123 4567", "sub": "Work • Unverified"},
+  ];
+
+  void deleteItem(int index) {
+    setState(() {
+      numbers.removeAt(index);
+    });
+  }
+
+  void editItem(int index) {
+    TextEditingController numController =
+        TextEditingController(text: numbers[index]["num"]);
+    TextEditingController subController =
+        TextEditingController(text: numbers[index]["sub"]);
+
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Edit"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: numController),
+              TextField(controller: subController),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  numbers[index]["num"] = numController.text;
+                  numbers[index]["sub"] = subController.text;
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Save"),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildCard(int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1B2A2A),
+        borderRadius: BorderRadius.circular(25),
+
+        // Glow effect like your image
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.25),
+            blurRadius: 12,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Circle phone icon
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.08),
+            ),
+            child: const Icon(Icons.phone, color: Colors.white70),
+          ),
+
+          const SizedBox(width: 16),
+
+          // Texts
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 4,
-                  child: Container(
-                    height: 60,
-                    color: const Color.fromARGB(255, 153, 49, 49),
-                    child: const Center(child: Text("22CSE007")),
+                Text(
+                  numbers[index]["num"]!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
                   ),
                 ),
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    height: 60,
-                    color: const Color.fromARGB(255, 240, 109, 53),
-                    child: const Center(child: Text("AB+")),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    height: 60,
-                    color: const Color.fromARGB(255, 48, 149, 231),
-                    child: const Center(child: Text("Dhaka")),
+                const SizedBox(height: 6),
+                Text(
+                  numbers[index]["sub"]!,
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 15,
                   ),
                 ),
               ],
             ),
+          ),
 
-            Expanded(
-              child: Center(
-                child: Container(
-                  width: 250,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 184, 123, 32),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(40),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      "110-007-22",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
+          // Edit
+          GestureDetector(
+            onTap: () => editItem(index),
+            child: const Icon(Icons.edit, color: Colors.white70),
+          ),
+
+          const SizedBox(width: 16),
+
+          // Delete
+          GestureDetector(
+            onTap: () => deleteItem(index),
+            child: const Icon(Icons.delete, color: Colors.white70),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F1A1A),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+
+            const Text(
+              "Secondary Numbers",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+
+            const SizedBox(height: 20),
+
+            Column(
+              children: List.generate(numbers.length, (index) {
+                return buildCard(index);
+              }),
             ),
           ],
         ),
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: const Color.fromARGB(255, 142, 150, 162),
-        shape: const CircleBorder(),
-        child: const Text("Mahruf"),
       ),
     );
   }
